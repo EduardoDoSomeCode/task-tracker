@@ -23,14 +23,24 @@ let tasks = []
 
 const readTaskFile = () => {
     // if (taskPathname) {
-    const data = fs.readFileSync(taskPathname, 'utf-8', (err, data) => {
-        if (err) {
-            console.error(err)
-            return;
-        }
+    if (fs.existsSync(taskPathname)) {
+        const data = fs.readFileSync(taskPathname, 'utf-8', (err, data) => {
+            if (err) {
+                console.error(err)
+                return
 
-    })
-    return JSON.parse(data)
+            }
+
+        })
+        return JSON.parse(data)
+
+
+    } else {
+        fs.writeFileSync(taskPathname, JSON.stringify([]), (err, dataToShow) => {
+
+        })
+    }
+
 }
 
 const writeTaskFile = (data) => {
@@ -53,7 +63,9 @@ const commands = {
         let newTask = {
             id: previousTask.length ? previousTask.length + 1 : 1,
             taskName: param,
-            status: "todo"
+            status: "todo",
+            createdAt: new Date(),
+            updateAt: new Date(),
         };
         previousTask.push(newTask,)
 
@@ -93,7 +105,7 @@ const commands = {
             console.log(`${ANSI_COLORS.RESET}`)
         }
         let allTheTask = readTaskFile(tasks)
-        let newTask = allTheTask.filter(task => task.id !== +param )
+        let newTask = allTheTask.filter(task => task.id !== +param)
         console.log(`curso con id : ${param} eliminado`)
         let saveTask = JSON.stringify(newTask)
         writeTaskFile(saveTask)
@@ -102,7 +114,7 @@ const commands = {
 
 
     },
-    update:(param)=>{
+    update: (param) => {
 
         console.log(param)
         let idTask = param.split(" ")[0]
@@ -113,7 +125,7 @@ const commands = {
         // console.log(taskToUpdate)
         taskToUpdate.taskName = text
 
-        
+
         console.log(taskToUpdate)
 
         console.log(cambio)
@@ -126,10 +138,22 @@ const commands = {
     tasks: (param) => {
         let allTasks = readTaskFile(tasks)
 
-        allTasks.map(task => {
-            console.log(`${ANSI_COLORS.BLUE} ${task.id}.- ${task.taskName} - Estado : ${task.status}`)
+        if (allTasks != null || allTasks != undefined) {
 
-        })
+          
+
+            allTasks.map(task => {
+                console.log(`${ANSI_COLORS.BLUE} ${task.id}.- ${task.taskName} - Estado : ${task.status}`)
+
+            })
+            console.log(`${ANSI_COLORS.RESET}`)
+            
+
+        } else {
+            console.log("No hay tareas para mostrar")
+            return 
+        }
+
         console.log(`${ANSI_COLORS.RESET}`)
 
     }
